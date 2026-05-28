@@ -2,23 +2,29 @@
 
 **Install. Open. Done. No Frida. No scripts. No PC.**
 
+## Download
+
+Download `ronin_v2.19.764_mod.apk` from the repo, install it directly on your phone.
+
 ## Version History
 
-### v2.19.764 (latest) — `ronin_modded_v2.apk`
-- **Patch:** `libil2cpp.so` at `0xCC5FBC`: `mov r2, #1` → `mov r2, #3`
-- **Effect:** `LiapStore.Store` defaults to `FakeStore (3)` instead of `GooglePlayStore (1)`
-- IAP purchases complete instantly, no payment processed
+### v2.19.764 (current) — `ronin_v2.19.764_mod.apk`
+- **Method:** Native IAP hooks via libNotlib.so + Play Integrity stripped (no libpairipcore.so)
+- **Arch:** ARM64 only (arm64-v8a)
+- **IAP:** Enter shop → tap any purchase → completes instantly, no payment
+- **Mod menu:** Floating icon (tap for extra toggles — god mode, damage, etc.)
+- **Source:** Based on AN1 mod engine, re-signed under Prometheus keystore
 
-### v1.26.493 — `ronin_modded.apk`  
+### v2 (broken) — `ronin_modded_v2.apk`
+- **Patch:** `libil2cpp.so` at `0xCC5FBC`: `mov r2, #1` → `mov r2, #3`
+- **Why it failed:** LiapStore/FakeStore infrastructure was removed by devs in v2.19.764
+- **Also broken:** ARM32-only, kept libpairipcore.so (Play Integrity detects mods)
+
+### v1.26.493 — `ronin_modded.apk`
 - **Patch:** `libil2cpp.so` at `0xE58B7C`: `cbz w8, ...` → NOP
 - **Effect:** `InstantiateStore()` always takes FakeStore path
+- **Status:** Obsolete — different game version
 
-## Install
+## Technical Notes
 
-1. Uninstall original Ronin
-2. Install `ronin_modded_v2.apk`
-3. Open → Shop → Buy anything → Done
-
-## How It Works
-
-The developers shipped Unity IAP's FakeStore + a `LiapStoreType.FakeStore = 3` enum in production. The only thing stopping it was one line of code setting the store to `GooglePlayStore = 1` during initialization. This mod changes that line to `FakeStore = 3`. The rest of the FakeStore infrastructure was already fully functional and compiled in.
+v2.19.764 removed the Unity IAP FakeStore infrastructure that v1.26.493 shipped. The AN1 mod works by injecting `libNotlib.so` (native hook library) via a modified `UnityPlayerActivity.onCreate()`, combined with stripping `libpairipcore.so` (Google Play Integrity API). The mod menu is a WindowManager overlay — the IAP bypass works automatically when the library loads, no toggle needed.
